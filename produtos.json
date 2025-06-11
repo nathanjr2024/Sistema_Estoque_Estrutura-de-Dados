@@ -24,5 +24,31 @@
         "fornecedor": "Tiago",
         "fabricante": "Tilibra",
         "categoria": "Papelaria"
+    },
+    {
+        "codigo": "001",
+        "lote": "1",
+        "nome": "Biscoito",
+        "peso": 0.5,
+        "data_validade": "2025-06-30",
+        "data_fabricacao": "2022-06-30",
+        "preco_compra": 2.0,
+        "preco_venda": 5.0,
+        "fornecedor": "LM",
+        "fabricante": "Bauduco",
+        "categoria": "Alimentos"
+    },
+    {
+        "codigo": "208388",
+        "lote": "20",
+        "nome": "Farinha",
+        "peso": 0.2,
+        "data_validade": "2025-08-15",
+        "data_fabricacao": "2023-11-20",
+        "preco_compra": 12.0,
+        "preco_venda": 30.0,
+        "fornecedor": "Atacadão",
+        "fabricante": "Dona Benta",
+        "categoria": "Alimentos Integrais"
     }
 ]

@@ -1,19 +1,30 @@
+# Arquivo: Menu.py
 import json
-from Produto import *
+from Produto import Produto, carregar_produtos, salvar_produtos
 from Engradado import Engradado
-from Pilha import Pilha
+from Estoque import Estoque  # Importa a classe Estoque
 from Fila_de_Pedidos import FilaPedidos
 from Pedido import Pedido
 
-produtos_cadastrados = carregar_produtos('produtos.json')
-
-
-# Simulação de Estoque (Matriz 5x8 de Pilhas)
-estoque = [[Pilha() for _ in range(5)] for _ in range(8)]
+# --- Inicialização do Sistema ---
+# Carrega os produtos existentes do arquivo JSON
+produtos_cadastrados = carregar_produtos('produtos.json') #
+# Cria uma instância única do Estoque e da Fila de Pedidos
+estoque = Estoque()
 fila_pedidos = FilaPedidos()
 
-def adicionar_produto():
+# --- Funções do Menu Refatoradas ---
+
+def cadastrar_novo_produto():
+    """Função dedicada a cadastrar um novo tipo de produto no sistema."""
+    print("\n--- Cadastro de Novo Produto ---")
     codigo = input("Código: ")
+    
+    # Verifica se o código do produto já existe
+    if any(p.codigo == codigo for p in produtos_cadastrados):
+        print("Erro: Já existe um produto com este código.")
+        return
+
     lote = input("Lote: ")
     nome = input("Nome: ")
     peso = float(input("Peso: "))
@@ -25,119 +36,158 @@ def adicionar_produto():
     fabricante = input("Fabricante: ")
     categoria = input("Categoria: ")
 
-    produto = Produto(
+    novo_produto = Produto(
         codigo, lote, nome, peso, data_validade, data_fabricacao,
         preco_compra, preco_venda, fornecedor, fabricante, categoria
     )
-    produtos_cadastrados.append(produto)
-    salvar_produtos(produtos_cadastrados, 'produtos.json')
+    produtos_cadastrados.append(novo_produto)
+    salvar_produtos(produtos_cadastrados, 'produtos.json') #
+    print(f"\nProduto '{nome}' cadastrado com sucesso!")
 
+def adicionar_engradado_estoque():
+    """Adiciona um engradado de um produto já cadastrado ao estoque."""
+    print("\n--- Adicionar Engradado ao Estoque ---")
+    codigo_produto = input("Código do produto: ")
 
+    # Verifica se o produto existe
+    if not any(p.codigo == codigo_produto for p in produtos_cadastrados):
+        print("Erro: Nenhum produto encontrado com este código. Cadastre o produto primeiro.")
+        return
+        
+    try:
+        quantidade = int(input("Quantidade de itens no engradado: "))
+        if quantidade <= 0:
+            print("A quantidade deve ser um número positivo.")
+            return
+    except ValueError:
+        print("Erro: Quantidade inválida.")
+        return
 
-    engradado = Engradado(produto.codigo, quantidade=int(input("Quantidade no engradado: ")))
+    engradado = Engradado(codigo_produto, quantidade)
 
-    # Inserção simplificada: sempre na primeira pilha livre
-    for linha in estoque:
-        for pilha in linha:
-            if len(pilha.engradados) < 5:
-                if pilha.adicionar(engradado):
-                    print("Engradado adicionado ao estoque.")
-                    
-                    return
-    print("Estoque cheio. Não foi possível adicionar.")
-    
+    if estoque.adicionar_engradado(engradado): #
+        print("\nEngradado adicionado ao estoque com sucesso.")
+    else:
+        print("\nErro: Estoque cheio ou nenhuma pilha compatível encontrada.")
 
-def remover_produto():
+def remover_unidades_estoque():
+    """Remove uma quantidade específica de um produto do estoque manualmente."""
+    print("\n--- Remover Unidades do Estoque ---")
     codigo = input("Código do produto para remover: ")
-    quantidade = int(input("Quantidade a remover: "))
+    
+    try:
+        quantidade = int(input("Quantidade a remover: "))
+        if quantidade <= 0:
+            print("A quantidade deve ser um número positivo.")
+            return
+    except ValueError:
+        print("Erro: Quantidade inválida.")
+        return
 
-    for linha in estoque:
-        for pilha in linha:
-            if not pilha.esta_vazia():
-                topo = pilha.topo()
-                if topo and topo.produto_codigo == codigo:
-                    while quantidade > 0 and not pilha.esta_vazia():
-                        pilha.remover()
-                        quantidade -= 1
-                    if quantidade == 0:
-                        print("Produto removido com sucesso.")
-                        return
-    print("Não foi possível remover a quantidade desejada.")
+    # Utiliza o método da classe Estoque que possui lógica de rollback
+    engradados_removidos = estoque.remover_engradado(codigo, quantidade) #
+
+    if engradados_removidos is not None:
+        print(f"\nRemoção concluída com sucesso.")
+    else:
+        print("\nNão foi possível remover a quantidade desejada (estoque insuficiente ou produto não encontrado).")
 
 def visualizar_estoque():
-    for i, linha in enumerate(estoque):
-        for j, pilha in enumerate(linha):
-            print(f"Posição [{i}][{j}] - {len(pilha.engradados)} engradados")
+    """Exibe o estado atual do estoque."""
+    print("\n--- Visualização do Estoque ---")
+    estoque.visualizar() #
 
 def registrar_pedido():
+    """Registra um novo pedido de cliente na fila."""
+    print("\n--- Registrar Novo Pedido ---")
     codigo_produto = input("Código do produto: ")
-    quantidade = int(input("Quantidade: "))
+    
+    # Verifica se o produto existe
+    if not any(p.codigo == codigo_produto for p in produtos_cadastrados):
+        print("Erro: Nenhum produto encontrado com este código.")
+        return
+
+    try:
+        quantidade = int(input("Quantidade desejada: "))
+        if quantidade <= 0:
+            print("A quantidade deve ser um número positivo.")
+            return
+    except ValueError:
+        print("Erro: Quantidade inválida.")
+        return
+        
     data_solicitacao = input("Data da solicitação (YYYY-MM-DD): ")
     solicitante = input("Nome do solicitante: ")
 
-    pedido = Pedido(codigo_produto, quantidade, data_solicitacao, solicitante)
-    fila_pedidos.adicionar_pedido(pedido)
-    print("Pedido registrado com sucesso.")
+    try:
+        pedido = Pedido(codigo_produto, quantidade, data_solicitacao, solicitante) #
+        fila_pedidos.adicionar_pedido(pedido) #
+        print("\nPedido registrado com sucesso.")
+    except ValueError as e:
+        print(f"Erro ao registrar o pedido: {e}. Verifique o formato da data.")
+
 
 def processar_pedidos():
-    while fila_pedidos.fila:
-        fila_pedidos.processar_pedido(EstoqueSimulado())
-
-class EstoqueSimulado:
-    """Classe de Estoque simulada para processar pedidos"""
-    def remover_engradado(self, codigo, quantidade):
-        removidos = 0
-        for linha in estoque:
-            for pilha in linha:
-                if not pilha.esta_vazia():
-                    topo = pilha.topo()
-                    if topo and topo.produto_codigo == codigo:
-                        while quantidade > 0 and not pilha.esta_vazia():
-                            pilha.remover()
-                            quantidade -= 1
-                            removidos += 1
-                        if quantidade == 0:
-                            return removidos
-        return None
+    """Processa o próximo pedido da fila."""
+    print("\n--- Processando Pedido ---")
+    if not fila_pedidos.fila:
+        print("Não há pedidos na fila para processar.")
+        return
+    
+    # A fila_pedidos.processar_pedido agora usa a instância real de Estoque
+    fila_pedidos.processar_pedido(estoque) #
 
 def gerar_relatorios():
-    print("Relatório de estoque:")
-    visualizar_estoque()
-    # Aqui pode implementar recursivamente relatórios de vencimento, falta, etc.
+    """Gera e exibe relatórios sobre o estoque."""
+    print("\n--- Relatório de Estoque por Produto ---")
+    if not produtos_cadastrados:
+        print("Nenhum produto cadastrado.")
+        return
+        
+    for produto in produtos_cadastrados:
+        total_unidades = estoque.contar_por_produto(produto.codigo) #
+        print(f"Produto: {produto.nome} (Cód: {produto.codigo}) - Total em Estoque: {total_unidades} unidades")
 
 def menu():
+    """Função principal que exibe o menu e gerencia as opções."""
     while True:
-        print("\n===== MENU =====")
-        print("1. Adicionar Produto ao Estoque")
-        print("2. Remover Produto do Estoque")
-        print("3. Visualizar Estoque")
-        print("4. Registrar Pedido")
-        print("5. Processar Pedidos")
-        print("6. Gerar Relatórios")
+        print("\n=========== MENU DO SISTEMA DE ESTOQUE ===========")
+        print("1. Cadastrar Novo Produto")
+        print("2. Adicionar Engradado ao Estoque")
+        print("3. Remover Unidades do Estoque")
+        print("4. Visualizar Estoque")
+        print("5. Registrar Pedido de Cliente")
+        print("6. Processar Próximo Pedido da Fila")
+        print("7. Gerar Relatório de Estoque")
+        print("8. Salvar Alterações nos Produtos")
         print("0. Sair")
+        print("==================================================")
 
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
-            adicionar_produto()
+            cadastrar_novo_produto()
         elif opcao == '2':
-            remover_produto()
+            adicionar_engradado_estoque()
         elif opcao == '3':
-            visualizar_estoque()
+            remover_unidades_estoque()
         elif opcao == '4':
-            registrar_pedido()
+            visualizar_estoque()
         elif opcao == '5':
-            processar_pedidos()
+            registrar_pedido()
         elif opcao == '6':
-            gerar_relatorios()
+            processar_pedidos()
         elif opcao == '7':
-            salvar_produtos(produtos_cadastrados, 'produtos.json')
-            print("Produtos salvos com sucesso!")
+            gerar_relatorios()
+        elif opcao == '8':
+            salvar_produtos(produtos_cadastrados, 'produtos.json') #
+            print("\nAlterações nos dados dos produtos salvas com sucesso!")
         elif opcao == '0':
-            print("Saindo...")
+            salvar_produtos(produtos_cadastrados, 'produtos.json')
+            print("\nAlterações salvas. Saindo do sistema...")
             break
         else:
-            print("Opção inválida!")
+            print("\nOpção inválida! Tente novamente.")
 
 if __name__ == "__main__":
     menu()

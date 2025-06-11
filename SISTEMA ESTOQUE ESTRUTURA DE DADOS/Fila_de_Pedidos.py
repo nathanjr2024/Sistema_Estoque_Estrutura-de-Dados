@@ -3,7 +3,7 @@ from Pilha import Pilha
 
 class FilaPedidos:
     
-    def _init_(self):
+    def __init__(self):
         self.fila = deque()
         
     def adicionar_pedido(self, pedido):

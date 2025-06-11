@@ -1,9 +1,9 @@
-from Pilha import pilha
+from Pilha import Pilha
 from Pedido import Pedido
 
 class Estoque:
-    def init(self):
-        self.matriz = [[pilha() for _ in range(5)] for _ in range(8)]
+    def __init__(self):
+        self.matriz = [[Pilha() for _ in range(5)] for _ in range(8)]
         
     def adicionar_engradado(self, engradado):
         for i, linha in enumerate(self.matriz):
