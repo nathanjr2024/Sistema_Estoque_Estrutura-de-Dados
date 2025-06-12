@@ -1,0 +1,95 @@
+[
+    [
+        [
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            },
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            },
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            }
+        ],
+        [],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            },
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            },
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            },
+            {
+                "codigo_produto": "000",
+                "quantidade": 100,
+                "capacidade_maxima": 100
+            }
+        ],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    [
+        [],
+        [],
+        [],
+        [],
+        []
+    ]
+]

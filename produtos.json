@@ -1,0 +1,16 @@
+[
+    {
+        "codigo": "000",
+        "lote": "l00",
+        "nome": "Maca Peruana",
+        "peso": 0.5,
+        "data_validade": "2025-06-30",
+        "data_fabricacao": "2023-05-30",
+        "preco_compra": 24.0,
+        "preco_venda": 40.0,
+        "fornecedor": "Max",
+        "fabricante": "Max Titanun",
+        "categoria": "Suplementos",
+        "quantidade_por_produto": 100
+    }
+]
